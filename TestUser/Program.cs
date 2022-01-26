@@ -7,9 +7,12 @@ namespace TestUser
     {
         static void Main()
         {
-            User user = new User("Test.Data@mail.ru");
-            Console.WriteLine($"{user.Name} {user.LastName}");
-            Console.ReadKey();
+            while (true)
+            {
+                User user = new User(Console.ReadLine());
+                Console.WriteLine($"{user.Name} {user.LastName}");
+            }
+            //Console.ReadKey();
         }
     }
 }
