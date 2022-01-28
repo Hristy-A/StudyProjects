@@ -25,9 +25,9 @@ namespace xUnitTestUser.Validation
         [InlineData("anton.basaktest.ru")]
         [InlineData("saransky@lavoren.de")]
         [InlineData("samodelkin@mail.ru")]
-        public void TestThrowExcEmail(string email)
+        public void TestThrowExEmail(string email)
         {
-            Assert.Throws(typeof(UserException), delegate() { User user = new User(email); });
+            Assert.Throws<UserException>(() => { User user = new User(email); });
             //Theory method 'TestThrowExcEmail' on test class 'UserTests' has InlineData duplicate(s). ??? Не понимаю, что означает данное предупреждение
             //Do not use typeof() expression to check the exception type. ??? Предупреждение, с сообщением не использовать typeof. А по другому сделать тест у меня не получилось :)
         }
@@ -55,9 +55,9 @@ namespace xUnitTestUser.Validation
         [InlineData("Mi", "N")]
         [InlineData("David1", "Saranov")]
         // Any test :)
-        public void TestThrowExcNaming(string name, string lastName)
+        public void TestThrowExNaming(string name, string lastName)
         {
-            Assert.Throws(typeof(UserException), delegate () { User user = new User(name, lastName); });
+            Assert.Throws<UserException>(() => { User user = new User(name, lastName); });
             //То же самое предупреждение(
         }
     }

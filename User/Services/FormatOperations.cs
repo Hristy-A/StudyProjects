@@ -51,7 +51,6 @@ namespace Formatting
             }
             return validStr.ToString();
         }
-
         public static string ToValidFormat(this string str, FormatOption formatOption)
         {
             char[] sepSet = { '-', ' ', '_' };

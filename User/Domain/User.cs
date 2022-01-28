@@ -6,9 +6,7 @@ namespace Model
 {
     public class User : IUser
     {
-        private const string DEFAULT_DOMAIN = "@mail.com";
-
-        #region Variables
+        private const string DEFAULT_DOMAIN = "mail.com";
 
         private string _name;
         private string _lastName;
@@ -17,10 +15,6 @@ namespace Model
         public string Name => _name;
         public string LastName => _lastName;
         public string Email => _email;
-
-        #endregion
-
-        #region Constructors
 
         public User(string name, string lastName)
         {
@@ -34,22 +28,35 @@ namespace Model
 
         public User(string email)
         {
-            Regex pattern = new Regex(@"^(?<name>[A-Za-z_]{2,255})\.(?<lastName>[A-Za-z_]{2,255})@\w{3,}\.\w{2,}");
-            Match match = pattern.Match(email);
-
-            if (match.Success)
+            if (TryParseEmail(email, out string name, out string lastName))
             {
-                _name = match.Groups[1].Captures[0].Value.ToValidFormat(FormatOperations.FormatOption.Naming);
-                _lastName = match.Groups[2].Captures[0].Value.ToValidFormat(FormatOperations.FormatOption.Naming);
-                _email = CreateEmail(_name, _lastName, email.Substring(email.IndexOf('@')));
+                _name = name;
+                _lastName = lastName;
+                _email = CreateEmail(_name, _lastName, GetDomain(email));
             }
-            else throw new UserException(nameof(email), ErrorMessages.INCORRECT_EMAIL_FORMAT);
+            else
+            {
+                throw new UserException(nameof(email), ErrorMessages.INCORRECT_EMAIL_FORMAT);
+            }
         }
 
-        #endregion
 
-        #region HelpMethods
-
+        private static string GetDomain(string email)
+        {
+            return email.Substring(email.IndexOf('@') + 1);
+        }
+        private static bool TryParseEmail(string email, out string name, out string lastName)
+        {
+            name = lastName = string.Empty;
+            Regex pattern = new Regex(@"^(?<name>[A-Za-z_]{2,255})\.(?<lastName>[A-Za-z_]{2,255})@\w{3,}\.\w{2,}");
+            Match match = pattern.Match(email);
+            if (match.Success)
+            {
+                name = match.Groups[1].Captures[0].Value.ToValidFormat(FormatOperations.FormatOption.Naming);
+                lastName = match.Groups[2].Captures[0].Value.ToValidFormat(FormatOperations.FormatOption.Naming);
+            }
+            return match.Success;
+        }
         private static void CheckFormat(string propertyName, string str)
         {
             if(str.Length < 2 || str.Length > 255)
@@ -57,13 +64,12 @@ namespace Model
             if (Regex.IsMatch(str, @"[^A-Za-z- ]"))
                 throw new UserException(propertyName, ErrorMessages.INCORRECT_CHARSET);
         }
-        private string CreateEmail(string name, string lastName, string domain = DEFAULT_DOMAIN)
+        private static string CreateEmail(string name, string lastName, string domain = DEFAULT_DOMAIN)
         {
-            return name.ToValidFormat(FormatOperations.FormatOption.Email) + "."
-                + lastName.ToValidFormat(FormatOperations.FormatOption.Email)
-                + domain;
-        }
+            string validName = name.ToValidFormat(FormatOperations.FormatOption.Email);
+            string validLastName = lastName.ToValidFormat(FormatOperations.FormatOption.Email);
 
-        #endregion
+            return string.Format($"{validName}.{validLastName}@{domain}");
+        }
     }
 }
